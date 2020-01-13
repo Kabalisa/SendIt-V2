@@ -15,11 +15,23 @@ export const typeDefs = gql`
   }
 
   type BookType {
+    id: ID
+    leader: String
+    genre: Genre
+  }
+
+  input typeInput {
     leader: String
     genre: Genre
   }
 
   type Query {
-    books: [Book]
+    books: [Book]!
+    getTypes: [BookType]!
+    getAType(input: typeInput): BookType
+  }
+
+  type Mutation {
+    createType(input: typeInput): BookType
   }
 `;
