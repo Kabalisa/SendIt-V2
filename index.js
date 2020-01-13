@@ -1,58 +1,18 @@
-const { ApolloServer, gql } = require('apollo-server');
+import { ApolloServer } from 'apollo-server';
+import mongoose from 'mongoose';
 
-const typeDefs = gql`
-  type Book {
-    id: ID
-    title: String
-    author: String
-    type: BookType
-  }
+import { typeDefs } from './Schema/graphql/graphSchema';
+import { resolvers } from './resolver/resolver';
 
-  enum Genre {
-    ADVENTURE
-    DRAMA
-    HORROR
-  }
+const url = 'mongodb://localhost:27018';
 
-  type BookType {
-    leader: String
-    genre: Genre
-  }
+mongoose.connect(url, { useNewUrlParser: true });
 
-  type Query {
-    books: [Book]
-  }
-`;
-
-const books = [
-  {
-    id: 1,
-    title: 'Harry Potter and the Chamber of Secrets',
-    author: 'J.K. Rowling'
-  },
-  {
-    id: 2,
-    title: 'Jurassic Park',
-    author: 'Michael Crichton'
-  }
-];
-
-const bookType = [
-  { leader: 'fiston', genre: 'ADVENTURE' },
-  { leader: 'kabalisa', genre: 'HORROR' }
-];
-
-const resolvers = {
-  Query: {
-    books: () => books
-  },
-  Book: {
-    type({ id }) {
-      if (id === 1) return bookType[0];
-      else return bookType[1];
-    }
-  }
-};
+const db = mongoose.connection;
+db.on('error', console.log.bind(console, 'conection erro:'));
+db.once('open', function() {
+  console.log('we are connected !!!!');
+});
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
