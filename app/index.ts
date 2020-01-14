@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { typeDefs } from './Schema/graphql/graphSchema';
 import { resolvers } from './resolver/resolver';
 
-const url = 'mongodb://localhost:27018';
+const url: string = 'mongodb://localhost:27018';
 
 mongoose.connect(url, { useNewUrlParser: true });
 
