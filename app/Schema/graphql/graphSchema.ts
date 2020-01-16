@@ -5,7 +5,7 @@ export const typeDefs = gql`
     id: ID
     title: String
     author: String
-    type: BookType
+    type?: BookType
   }
 
   enum Genre {
