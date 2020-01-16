@@ -1,36 +1,36 @@
 import { Document } from 'mongoose';
 
 export interface BookModelInt extends Document {
-  title: String;
-  author: String;
-  typeId: String;
+    title: string;
+    author: string;
+    typeId: string;
 }
 
 export interface BookTypeModel extends Document {
-  leader: String;
-  genre: String;
+    leader: string;
+    genre: string;
 }
 export interface IdOnlyType {
-  id: String;
+    id: string;
 }
 
 export type Book = {
-  id: String;
-  title: String;
-  author: String;
-  type?: BookType;
+    id: string;
+    title: string;
+    author: string;
+    type?: BookType;
 };
 
 export enum Genre {
-  ADVENTURE,
-  DRAMA,
-  HORROR
+    ADVENTURE,
+    DRAMA,
+    HORROR,
 }
 
 export type BookType = {
-  id: String;
-  leader: String;
-  genre: Genre;
+    id: string;
+    leader: string;
+    genre: Genre;
 };
 
 // type ResolverFn = (_: any, args: any, ctx: any) => any;
