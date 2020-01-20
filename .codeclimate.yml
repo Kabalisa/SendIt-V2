@@ -1,0 +1,9 @@
+version: '2'
+plugins:
+    eslint:
+        enabled: true
+exclude_patterns:
+    - '**/node_modules/'
+    - 'tests/'
+    - 'js/'
+    - '**/*.d.ts'
