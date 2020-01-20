@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 import { typeDefs } from './Schema/graphql/graphSchema';
 import { resolvers } from './resolver/resolver';
 
-const url = 'mongodb://localhost:27018';
+const env = process.env.NODE_ENV;
+const url = env === 'test' ? 'mongodb://localhost:27017' : 'mongodb://localhost:27018';
 
 mongoose.connect(url, { useNewUrlParser: true });
 
@@ -14,7 +15,7 @@ db.once('open', function() {
     console.log('we are connected !!!!');
 });
 
-const server = new ApolloServer({ typeDefs, resolvers });
+export const server = new ApolloServer({ typeDefs, resolvers });
 
 // The `listen` method launches a web server.
 server.listen().then(({ url }) => {
