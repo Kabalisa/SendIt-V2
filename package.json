@@ -4,10 +4,10 @@
     "description": "a second version of Send-It with new technology and features.",
     "main": "index.js",
     "scripts": {
-        "start": "node --require @babel/register ./js/index.js ",
+        "start": "node --require @babel/register --require dotenv/config ./js/index.js ",
         "build": "tsc",
         "generate": "graphql-codegen",
-        "test": "NODE_ENV=test nyc mocha -r ts-node/register tests/*.test.ts --exit",
+        "test": "NODE_ENV=test nyc mocha -r ts-node/register tests/**/*.test.ts --exit",
         "coverage": "nyc report --reporter=text-lcov | coveralls"
     },
     "repository": {
@@ -25,11 +25,17 @@
         "@graphql-codegen/cli": "^1.11.2",
         "@graphql-codegen/typescript": "^1.11.2",
         "@graphql-codegen/typescript-resolvers": "^1.11.2",
+        "@types/bcryptjs": "^2.4.2",
+        "@types/jsonwebtoken": "^8.3.6",
         "@types/mongoose": "^5.5.41",
         "apollo-server": "^2.9.16",
-        "apollo-server-testing": "^2.9.16",
+        "apollo-server-express": "^2.9.16",
+        "apollo-server-integration-testing": "^2.3.0",
+        "bcryptjs": "^2.4.3",
         "dotenv": "^8.2.0",
+        "express": "^4.17.1",
         "graphql": "^14.5.8",
+        "jsonwebtoken": "^8.5.1",
         "mongoose": "^5.8.7",
         "typescript": "^3.7.4"
     },

@@ -1,39 +1,51 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const apollo_server_1 = require("apollo-server");
-exports.typeDefs = apollo_server_1.gql `
-    type Book {
-        id: ID
-        title: String
-        author: String
-        type: BookType
+const apollo_server_express_1 = require("apollo-server-express");
+exports.typeDefs = apollo_server_express_1.gql `
+    input RegistrationInput {
+        email: String
+        password: String
     }
 
-    enum Genre {
-        ADVENTURE
-        DRAMA
-        HORROR
+    input FetchUserInput {
+        email: String
     }
 
-    type BookType {
-        id: ID
-        leader: String
-        genre: Genre
+    union RegistrationUnion = UserRegistration | RequestError
+    union EmailErrorUnion = EmailType | RequestError
+
+    type UserRegistration {
+        registrationType: String
+        token: String
     }
 
-    input typeInput {
-        leader: String
-        genre: Genre
+    type RequestError {
+        errorType: String
+        errorMessage: String
+    }
+
+    type User {
+        id: ID!
+        email: String!
+        password: String!
+        token: String!
+        firstName: String
+        lastName: String
+        userName: String
+        image: String
+    }
+
+    type EmailType {
+        email: String!
     }
 
     type Query {
-        books: [Book]!
-        getTypes: [BookType]!
-        getAType(input: typeInput): BookType
+        getUsers: [User]
     }
 
     type Mutation {
-        createType(input: typeInput): BookType
+        register(input: RegistrationInput): RegistrationUnion
+        deleteUser(input: FetchUserInput): EmailErrorUnion
     }
 `;
 //# sourceMappingURL=graphSchema.js.map
