@@ -1,7 +1,7 @@
 import chai from 'chai';
 import { createTestClient } from 'apollo-server-integration-testing';
 import { apolloServer } from '../../app/index';
-import { REGISTER_USER, DELETE_USER } from '../mutations/mutations';
+import { REGISTER_USER, DELETE_USER, LOGIN_USER } from '../mutations/mutations';
 import { GET_USERS } from '../queries/queries';
 
 const { expect } = chai;
@@ -40,6 +40,9 @@ describe('get users test', () => {
         expect(res.data.getUsers[0]).to.have.property('id');
         expect(res.data.getUsers[0]).to.have.property('email');
     });
+    after(async () => {
+        await Mutate(DELETE_USER);
+    });
 });
 
 describe('delete user test', () => {
@@ -68,6 +71,9 @@ describe('registration error test', () => {
         expect(res.data.register).to.have.property('errorType');
         expect(res.data.register).to.have.property('errorMessage');
     });
+    after(async () => {
+        await Mutate(DELETE_USER);
+    });
 });
 
 describe('delete user error test', () => {
@@ -82,5 +88,59 @@ describe('delete user error test', () => {
         expect(res.data.deleteUser).to.be.a('object');
         expect(res.data.deleteUser).to.have.property('errorType');
         expect(res.data.deleteUser).to.have.property('errorMessage');
+    });
+});
+
+describe('login user test', () => {
+    before(async () => {
+        await Mutate(REGISTER_USER);
+    });
+    it('should login a user', async () => {
+        const res = await Mutate(LOGIN_USER, { variables: { Email: 'ikabalisa20@gmail.com', Password: 'password' } });
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('logIn');
+        expect(res.data.logIn).to.be.a('object');
+        expect(res.data.logIn).to.have.property('registrationType');
+        expect(res.data.logIn).to.have.property('token');
+    });
+    after(async () => {
+        await Mutate(DELETE_USER);
+    });
+});
+
+describe('fail to login user test 1', () => {
+    before(async () => {
+        await Mutate(REGISTER_USER);
+    });
+    it('user should not exist', async () => {
+        const res = await Mutate(LOGIN_USER, { variables: { Email: 'ikabalisa@gmail.com', Password: 'password' } });
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('logIn');
+        expect(res.data.logIn).to.be.a('object');
+        expect(res.data.logIn).to.have.property('errorType');
+        expect(res.data.logIn).to.have.property('errorMessage');
+    });
+    after(async () => {
+        await Mutate(DELETE_USER);
+    });
+});
+
+describe('fail to login user test 2', () => {
+    before(async () => {
+        await Mutate(REGISTER_USER);
+    });
+    it('incorrect password', async () => {
+        const res = await Mutate(LOGIN_USER, { variables: { Email: 'ikabalisa20@gmail.com', Password: 'pasord' } });
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('logIn');
+        expect(res.data.logIn).to.be.a('object');
+        expect(res.data.logIn).to.have.property('errorType');
+        expect(res.data.logIn).to.have.property('errorMessage');
+    });
+    after(async () => {
+        await Mutate(DELETE_USER);
     });
 });

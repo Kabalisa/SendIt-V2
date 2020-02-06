@@ -51,11 +51,25 @@ AuthHelper.createUser = (input, { UserModel, AuthHelper }, _) => __awaiter(void 
         const storedInput = {
             email: input.email,
             password: AuthHelper.hashPassword(input.password),
-            token,
         };
         const user = new UserModel(storedInput);
         user.save();
         return token;
+    }
+});
+AuthHelper.loginUser = (input, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
+    const userExist = yield AuthHelper.fetchAUser(UserModel, input);
+    const SECRET = process.env.SECRET;
+    const token = AuthHelper.tokenGenerator({ email: input.email }, SECRET);
+    if (userExist) {
+        const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
+        const result = isPasswordCorrect
+            ? { registrationType: 'user log in', token }
+            : { errorType: 'user login in error', errorMessage: 'incorrect password' };
+        return result;
+    }
+    else {
+        return { errorType: 'user login in error', errorMessage: 'user does not exists' };
     }
 });
 AuthHelper.deleteUser = (input, { UserModel }, _) => __awaiter(void 0, void 0, void 0, function* () {

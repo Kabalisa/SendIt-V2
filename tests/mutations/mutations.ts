@@ -24,3 +24,18 @@ mutation {
     }
   }
 }`;
+
+export const LOGIN_USER = `
+mutation LoginUser($Email: String, $Password: String) {
+  logIn(input:{email: $Email, password: $Password}){
+    ... on UserRegistration{
+      registrationType
+      token
+    }
+    ... on RequestError{
+      errorType
+      errorMessage
+    }
+  }
+}
+`;

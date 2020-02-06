@@ -50,6 +50,10 @@ exports.resolvers = {
                 };
             return results;
         }),
+        logIn: (_, { input }, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield AuthHelper.loginUser(input, { UserModel, AuthHelper });
+            return result;
+        }),
         deleteUser: (_, { input }, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
             const userDeleted = yield AuthHelper.deleteUser(input, { UserModel });
             const results = userDeleted
