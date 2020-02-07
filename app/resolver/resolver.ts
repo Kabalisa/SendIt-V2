@@ -39,6 +39,10 @@ export const resolvers = {
                   };
             return results;
         },
+        logIn: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+            const result = await AuthHelper.loginUser(input, { UserModel, AuthHelper });
+            return result;
+        },
         deleteUser: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
             const userDeleted = await AuthHelper.deleteUser(input, { UserModel });
             const results = userDeleted

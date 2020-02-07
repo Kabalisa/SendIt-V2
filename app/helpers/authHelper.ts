@@ -39,11 +39,25 @@ export class AuthHelper {
             const storedInput = {
                 email: input.email,
                 password: AuthHelper.hashPassword(input.password),
-                token,
             };
             const user = new UserModel(storedInput);
             user.save();
             return token;
+        }
+    };
+
+    static loginUser = async (input: any, { UserModel, AuthHelper }: any) => {
+        const userExist = await AuthHelper.fetchAUser(UserModel, input);
+        const SECRET = process.env.SECRET;
+        const token = AuthHelper.tokenGenerator({ email: input.email }, SECRET);
+        if (userExist) {
+            const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
+            const result = isPasswordCorrect
+                ? { registrationType: 'user log in', token }
+                : { errorType: 'user login in error', errorMessage: 'incorrect password' };
+            return result;
+        } else {
+            return { errorType: 'user login in error', errorMessage: 'user does not exists' };
         }
     };
 

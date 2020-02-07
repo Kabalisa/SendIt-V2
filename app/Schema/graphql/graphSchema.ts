@@ -44,6 +44,7 @@ export const typeDefs = gql`
 
     type Mutation {
         register(input: RegistrationInput): RegistrationUnion
+        logIn(input: RegistrationInput): RegistrationUnion
         deleteUser(input: FetchUserInput): EmailErrorUnion
     }
 `;

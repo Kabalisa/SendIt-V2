@@ -45,6 +45,7 @@ exports.typeDefs = apollo_server_express_1.gql `
 
     type Mutation {
         register(input: RegistrationInput): RegistrationUnion
+        logIn(input: RegistrationInput): RegistrationUnion
         deleteUser(input: FetchUserInput): EmailErrorUnion
     }
 `;
