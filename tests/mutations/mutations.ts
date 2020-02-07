@@ -24,3 +24,26 @@ mutation {
     }
   }
 }`;
+
+export const LOGIN_USER = `
+mutation LoginUser($Email: String, $Password: String) {
+  logIn(input:{email: $Email, password: $Password}){
+    ... on UserRegistration{
+      registrationType
+      token
+    }
+    ... on RequestError{
+      errorType
+      errorMessage
+    }
+  }
+}
+`;
+
+export const VALIDATE_USER = `
+mutation {
+  validateUser(input: {email:"ikabalisa20@gmail.com"}) {
+    message
+  }
+}
+`;

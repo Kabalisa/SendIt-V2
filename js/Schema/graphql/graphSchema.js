@@ -7,7 +7,7 @@ exports.typeDefs = apollo_server_express_1.gql `
         password: String
     }
 
-    input FetchUserInput {
+    input EmailInput {
         email: String
     }
 
@@ -33,10 +33,15 @@ exports.typeDefs = apollo_server_express_1.gql `
         lastName: String
         userName: String
         image: String
+        isVerified: Boolean
     }
 
     type EmailType {
         email: String!
+    }
+
+    type MessageType {
+        message: String!
     }
 
     type Query {
@@ -45,7 +50,9 @@ exports.typeDefs = apollo_server_express_1.gql `
 
     type Mutation {
         register(input: RegistrationInput): RegistrationUnion
-        deleteUser(input: FetchUserInput): EmailErrorUnion
+        logIn(input: RegistrationInput): RegistrationUnion
+        deleteUser(input: EmailInput): EmailErrorUnion
+        validateUser(input: EmailInput): MessageType
     }
 `;
 //# sourceMappingURL=graphSchema.js.map

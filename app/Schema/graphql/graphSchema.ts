@@ -6,7 +6,7 @@ export const typeDefs = gql`
         password: String
     }
 
-    input FetchUserInput {
+    input EmailInput {
         email: String
     }
 
@@ -32,10 +32,15 @@ export const typeDefs = gql`
         lastName: String
         userName: String
         image: String
+        isVerified: Boolean
     }
 
     type EmailType {
         email: String!
+    }
+
+    type MessageType {
+        message: String!
     }
 
     type Query {
@@ -44,6 +49,8 @@ export const typeDefs = gql`
 
     type Mutation {
         register(input: RegistrationInput): RegistrationUnion
-        deleteUser(input: FetchUserInput): EmailErrorUnion
+        logIn(input: RegistrationInput): RegistrationUnion
+        deleteUser(input: EmailInput): EmailErrorUnion
+        validateUser(input: EmailInput): MessageType
     }
 `;

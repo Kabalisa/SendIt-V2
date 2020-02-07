@@ -4,10 +4,10 @@ const mongoose_1 = require("mongoose");
 exports.userSchema = new mongoose_1.Schema({
     email: String,
     password: String,
-    token: String,
     firstName: String,
     lastName: String,
     userName: String,
     image: String,
+    isVerified: Boolean,
 });
 //# sourceMappingURL=mongoSchema.js.map

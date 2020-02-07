@@ -27,17 +27,27 @@ export const resolvers = {
     },
     Mutation: {
         register: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
-            const token = await AuthHelper.createUser(input, { UserModel, AuthHelper });
-            const results = token
-                ? {
-                      registrationType: 'user sign up',
-                      token,
-                  }
-                : {
-                      errorType: 'user sign up error',
-                      errorMessage: 'the user already exists',
-                  };
+            const result = await AuthHelper.createUser(input, { UserModel, AuthHelper });
+            const results =
+                result === 'send email failed'
+                    ? {
+                          errorType: 'user sign up error',
+                          errorMessage: 'verification email not sent',
+                      }
+                    : result === null
+                    ? {
+                          errorType: 'user sign up error',
+                          errorMessage: 'the user already exists',
+                      }
+                    : {
+                          registrationType: 'user sign up successful. please check your email to verify it.',
+                          token: result,
+                      };
             return results;
+        },
+        logIn: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+            const result = await AuthHelper.loginUser(input, { UserModel, AuthHelper });
+            return result;
         },
         deleteUser: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
             const userDeleted = await AuthHelper.deleteUser(input, { UserModel });
@@ -48,6 +58,10 @@ export const resolvers = {
                       errorMessage: 'verify the user being deleted',
                   };
             return results;
+        },
+        validateUser: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+            const result = await AuthHelper.validateUser(input, { UserModel, AuthHelper });
+            return result;
         },
     },
 };

@@ -1,6 +1,15 @@
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/triple-slash-reference */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+///<reference path="../types/nodemailer-sendgrid-transport.d.ts" />;
+///<reference path="../types/nodemailer-stub-transport.d.ts" />;
+
 import Jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
+import sgTransport from 'nodemailer-sendgrid-transport';
+import stubTransport from 'nodemailer-stub-transport';
+import { send } from '../utilities/mailSender';
 
 export class AuthHelper {
     static tokenGenerator = (info: any, secret = 'socret') => {
@@ -29,21 +38,63 @@ export class AuthHelper {
         }
     };
 
+    static validateUserMutation = (email: string) => {
+        return `
+        mutation {
+            validateUser(input: {email:"${email}"}) {
+              message
+            }
+          }
+        `;
+    };
+
     static createUser = async (input: any, { UserModel, AuthHelper }: any, _?: any): Promise<string | null> => {
         const userExist = await AuthHelper.fetchAUser(UserModel, input);
+        const { email } = input;
         if (userExist) {
             return null;
         } else {
-            const SECRET = process.env.SECRET;
-            const token = AuthHelper.tokenGenerator({ email: input.email }, SECRET);
-            const storedInput = {
-                email: input.email,
-                password: AuthHelper.hashPassword(input.password),
-                token,
-            };
-            const user = new UserModel(storedInput);
-            user.save();
-            return token;
+            let result: string;
+            try {
+                const SECRET = process.env.SECRET;
+                const APIURL = process.env.API_URL;
+                const MUTATION = AuthHelper.validateUserMutation(email);
+                const token = AuthHelper.tokenGenerator({ email }, SECRET);
+                const storedInput = {
+                    email,
+                    password: AuthHelper.hashPassword(input.password),
+                    isVerified: false,
+                };
+                const user = new UserModel(storedInput);
+                await send(AuthHelper, {
+                    email,
+                    subject: 'Send-IT Email Verification',
+                    html: `<p>click on the following to verify your email <a href='${APIURL}?query=${MUTATION}'>Verify Email</a></p>`,
+                });
+                user.save();
+                result = token;
+            } catch (error) {
+                result = 'send email failed';
+            }
+            return result;
+        }
+    };
+
+    static loginUser = async (input: any, { UserModel, AuthHelper }: any) => {
+        const userExist = await AuthHelper.fetchAUser(UserModel, input);
+        const SECRET = process.env.SECRET;
+        const token = AuthHelper.tokenGenerator({ email: input.email }, SECRET);
+        if (userExist) {
+            const { isVerified } = userExist;
+            const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
+            const result = !isVerified
+                ? { errorType: 'user login in error', errorMessage: 'verify your email first.' }
+                : isPasswordCorrect
+                ? { registrationType: 'user log in', token }
+                : { errorType: 'user login in error', errorMessage: 'incorrect password' };
+            return result;
+        } else {
+            return { errorType: 'user login in error', errorMessage: 'user does not exists' };
         }
     };
 
@@ -55,6 +106,38 @@ export class AuthHelper {
             return deletedUser.deletedCount === 1 ? email : null;
         } else {
             return null;
+        }
+    };
+
+    static emailTransport = (APIKEY: string) => {
+        const options = {
+            auth: {
+                api_key: APIKEY,
+            },
+        };
+
+        const NODEENV = process.env.NODE_ENV;
+
+        const tranport =
+            NODEENV === 'test' && APIKEY === 'TESTAPIKEY'
+                ? sgTransport(options)
+                : NODEENV === 'test'
+                ? stubTransport()
+                : sgTransport(options);
+        return nodemailer.createTransport(tranport);
+    };
+
+    static validateUser = async (input: any, { UserModel, AuthHelper }: any) => {
+        const userExist = await AuthHelper.fetchAUser(UserModel, input);
+        const error = 'error!!. user validation failed';
+        if (userExist) {
+            const { email } = userExist;
+            const result = await UserModel.updateOne({ email }, { isVerified: true });
+            const verifiedUser =
+                result.nModified === 1 ? { message: 'user verified successfully' } : { message: error };
+            return verifiedUser;
+        } else {
+            return { message: error };
         }
     };
 }

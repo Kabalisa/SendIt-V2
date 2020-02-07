@@ -38,17 +38,26 @@ exports.resolvers = {
     },
     Mutation: {
         register: (_, { input }, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
-            const token = yield AuthHelper.createUser(input, { UserModel, AuthHelper });
-            const results = token
+            const result = yield AuthHelper.createUser(input, { UserModel, AuthHelper });
+            const results = result === 'send email failed'
                 ? {
-                    registrationType: 'user sign up',
-                    token,
-                }
-                : {
                     errorType: 'user sign up error',
-                    errorMessage: 'the user already exists',
-                };
+                    errorMessage: 'verification email not sent',
+                }
+                : result === null
+                    ? {
+                        errorType: 'user sign up error',
+                        errorMessage: 'the user already exists',
+                    }
+                    : {
+                        registrationType: 'user sign up successful. please check your email to verify it.',
+                        token: result,
+                    };
             return results;
+        }),
+        logIn: (_, { input }, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield AuthHelper.loginUser(input, { UserModel, AuthHelper });
+            return result;
         }),
         deleteUser: (_, { input }, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
             const userDeleted = yield AuthHelper.deleteUser(input, { UserModel });
@@ -59,6 +68,10 @@ exports.resolvers = {
                     errorMessage: 'verify the user being deleted',
                 };
             return results;
+        }),
+        validateUser: (_, { input }, { UserModel, AuthHelper }) => __awaiter(void 0, void 0, void 0, function* () {
+            const result = yield AuthHelper.validateUser(input, { UserModel, AuthHelper });
+            return result;
         }),
     },
 };
