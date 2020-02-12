@@ -8,5 +8,6 @@ exports.userSchema = new mongoose_1.Schema({
     lastName: String,
     userName: String,
     image: String,
+    isVerified: Boolean,
 });
 //# sourceMappingURL=mongoSchema.js.map

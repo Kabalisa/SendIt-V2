@@ -39,3 +39,11 @@ mutation LoginUser($Email: String, $Password: String) {
   }
 }
 `;
+
+export const VALIDATE_USER = `
+mutation {
+  validateUser(input: {email:"ikabalisa20@gmail.com"}) {
+    message
+  }
+}
+`;

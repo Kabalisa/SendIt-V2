@@ -1,7 +1,8 @@
 import chai from 'chai';
 import { createTestClient } from 'apollo-server-integration-testing';
+import mockedEnv from 'mocked-env';
 import { apolloServer } from '../../app/index';
-import { REGISTER_USER, DELETE_USER, LOGIN_USER } from '../mutations/mutations';
+import { REGISTER_USER, DELETE_USER, LOGIN_USER, VALIDATE_USER } from '../mutations/mutations';
 import { GET_USERS } from '../queries/queries';
 
 const { expect } = chai;
@@ -76,6 +77,27 @@ describe('registration error test', () => {
     });
 });
 
+describe('registration error. email not sent', () => {
+    let restore: any;
+    before(async () => {
+        restore = mockedEnv({
+            SENDGRID_API_KEY: 'TESTAPIKEY',
+        });
+    });
+    it('email not sent', async () => {
+        const res = await Mutate(REGISTER_USER);
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('register');
+        expect(res.data.register).to.be.a('object');
+        expect(res.data.register).to.have.property('errorType');
+        expect(res.data.register).to.have.property('errorMessage');
+    });
+    after(() => {
+        restore();
+    });
+});
+
 describe('delete user error test', () => {
     before(async () => {
         await Mutate(DELETE_USER);
@@ -94,6 +116,9 @@ describe('delete user error test', () => {
 describe('login user test', () => {
     before(async () => {
         await Mutate(REGISTER_USER);
+    });
+    beforeEach(async () => {
+        await Mutate(VALIDATE_USER);
     });
     it('should login a user', async () => {
         const res = await Mutate(LOGIN_USER, { variables: { Email: 'ikabalisa20@gmail.com', Password: 'password' } });
@@ -131,6 +156,9 @@ describe('fail to login user test 2', () => {
     before(async () => {
         await Mutate(REGISTER_USER);
     });
+    beforeEach(async () => {
+        await Mutate(VALIDATE_USER);
+    });
     it('incorrect password', async () => {
         const res = await Mutate(LOGIN_USER, { variables: { Email: 'ikabalisa20@gmail.com', Password: 'pasord' } });
         expect(res).to.be.a('object');
@@ -142,5 +170,54 @@ describe('fail to login user test 2', () => {
     });
     after(async () => {
         await Mutate(DELETE_USER);
+    });
+});
+
+describe('fail to login user test 3', () => {
+    before(async () => {
+        await Mutate(REGISTER_USER);
+    });
+    it('validate your email first', async () => {
+        const res = await Mutate(LOGIN_USER, { variables: { Email: 'ikabalisa20@gmail.com', Password: 'password' } });
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('logIn');
+        expect(res.data.logIn).to.be.a('object');
+        expect(res.data.logIn).to.have.property('errorType');
+        expect(res.data.logIn).to.have.property('errorMessage');
+    });
+    after(async () => {
+        await Mutate(DELETE_USER);
+    });
+});
+
+describe('fail to validate the user twice', () => {
+    before(async () => {
+        await Mutate(REGISTER_USER);
+    });
+    beforeEach(async () => {
+        await Mutate(VALIDATE_USER);
+    });
+    it('should fail to validate the user twice', async () => {
+        const res = await Mutate(VALIDATE_USER);
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('validateUser');
+        expect(res.data.validateUser).to.be.a('object');
+        expect(res.data.validateUser).to.have.property('message');
+    });
+    after(async () => {
+        await Mutate(DELETE_USER);
+    });
+});
+
+describe('fail to validate the user who do not exist', () => {
+    it('should not validata no-existing users', async () => {
+        const res = await Mutate(VALIDATE_USER);
+        expect(res).to.be.a('object');
+        expect(res).to.have.property('data');
+        expect(res.data).to.have.property('validateUser');
+        expect(res.data.validateUser).to.be.a('object');
+        expect(res.data.validateUser).to.have.property('message');
     });
 });

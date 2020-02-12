@@ -7,6 +7,7 @@ export interface UserModelInt extends Document {
     lastName: string;
     userName: string;
     image: string;
+    isVerified: boolean;
 }
 
 // type ResolverFn = (_: any, args: any, ctx: any) => any;

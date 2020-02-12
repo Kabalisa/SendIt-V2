@@ -7,4 +7,5 @@ export const userSchema: Schema = new Schema({
     lastName: String,
     userName: String,
     image: String,
+    isVerified: Boolean,
 });
