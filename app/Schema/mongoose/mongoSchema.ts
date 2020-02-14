@@ -5,7 +5,7 @@ export const userSchema: Schema = new Schema({
     password: String,
     firstName: String,
     lastName: String,
-    userName: String,
+    provider: String,
     image: String,
     isVerified: Boolean,
     role: {

@@ -29,12 +29,12 @@ export class AuthHelper {
 
     static fetchUsers = (UserModel: any, _?: any, __?: any) => UserModel.find();
     static fetchAUser = async (UserModel: any, input: any) => {
-        if (input.email) {
+        try {
             return await UserModel.findOne({ email: input.email }, (err: any, user: any) => {
                 return user;
             });
-        } else {
-            return null;
+        } catch (error) {
+            return error.message;
         }
     };
 
@@ -66,6 +66,7 @@ export class AuthHelper {
                     password: AuthHelper.hashPassword(input.password),
                     isVerified: false,
                     role: email === ADMIN_EMAIL ? 'ADMIN' : 'USER',
+                    provider: 'local',
                 };
                 const user = new UserModel(storedInput);
                 await send(AuthHelper, {

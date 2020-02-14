@@ -1,12 +1,14 @@
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import mongoose from 'mongoose';
+import passport from 'passport';
 
 import { typeDefs } from './Schema/graphql/graphSchema';
 import { resolvers } from './resolver/resolver';
 import { UserModel } from './models/mongoModels';
 import { AuthHelper } from './helpers/authHelper';
 import { schemaDirectives } from './helpers/directives/index';
+import routes from './socialAuth/index';
 
 const env = process.env.NODE_ENV;
 const { SECRET } = process.env;
@@ -45,13 +47,15 @@ const server = new ApolloServer({
 });
 
 const app = express();
+app.use(passport.initialize());
+app.use(routes);
 server.applyMiddleware({ app });
 
 const port = process.env.PORT;
 
 // The `listen` method launches a web server.
 app.listen({ port }, () => {
-    console.log(`🚀  Server ready at ${url}`);
+    console.log(`🚀  Server ready at ${port}`);
 });
 
 export { server as apolloServer, app as expressServer };

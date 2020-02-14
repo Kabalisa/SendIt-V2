@@ -6,11 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const apollo_server_express_1 = require("apollo-server-express");
 const mongoose_1 = __importDefault(require("mongoose"));
+const passport_1 = __importDefault(require("passport"));
 const graphSchema_1 = require("./Schema/graphql/graphSchema");
 const resolver_1 = require("./resolver/resolver");
 const mongoModels_1 = require("./models/mongoModels");
 const authHelper_1 = require("./helpers/authHelper");
 const index_1 = require("./helpers/directives/index");
+const index_2 = __importDefault(require("./socialAuth/index"));
 const env = process.env.NODE_ENV;
 const { SECRET } = process.env;
 const TOKENHEADER = 'authorization';
@@ -46,9 +48,11 @@ const server = new apollo_server_express_1.ApolloServer({
 exports.apolloServer = server;
 const app = express_1.default();
 exports.expressServer = app;
+app.use(passport_1.default.initialize());
+app.use(index_2.default);
 server.applyMiddleware({ app });
 const port = process.env.PORT;
 app.listen({ port }, () => {
-    console.log(`🚀  Server ready at ${url}`);
+    console.log(`🚀  Server ready at ${port}`);
 });
 //# sourceMappingURL=index.js.map

@@ -5,7 +5,7 @@ export interface UserModelInt extends Document {
     password: string;
     firstName: string;
     lastName: string;
-    userName: string;
+    provider: string;
     image: string;
     isVerified: boolean;
 }

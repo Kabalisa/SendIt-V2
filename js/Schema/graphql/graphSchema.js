@@ -41,7 +41,7 @@ exports.typeDefs = apollo_server_express_1.gql `
         token: String!
         firstName: String
         lastName: String
-        userName: String
+        provider: String
         image: String
         isVerified: Boolean
         role: Role
