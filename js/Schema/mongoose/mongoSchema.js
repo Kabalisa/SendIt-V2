@@ -9,5 +9,9 @@ exports.userSchema = new mongoose_1.Schema({
     userName: String,
     image: String,
     isVerified: Boolean,
+    role: {
+        type: String,
+        enum: ['ADMIN', 'USER', 'SELLER'],
+    },
 });
 //# sourceMappingURL=mongoSchema.js.map

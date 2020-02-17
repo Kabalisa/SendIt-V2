@@ -8,4 +8,8 @@ export const userSchema: Schema = new Schema({
     userName: String,
     image: String,
     isVerified: Boolean,
+    role: {
+        type: String,
+        enum: ['ADMIN', 'USER', 'SELLER'],
+    },
 });

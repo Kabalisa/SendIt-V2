@@ -7,7 +7,7 @@
         "start": "node --require @babel/register --require dotenv/config ./js/index.js ",
         "build": "tsc",
         "generate": "graphql-codegen",
-        "test": "NODE_ENV=test nyc mocha -r ts-node/register tests/**/*.test.ts --exit",
+        "test": "NODE_ENV=test nyc mocha -r ts-node/register  --require dotenv/config tests/**/*.test.ts --exit",
         "coverage": "nyc report --reporter=text-lcov | coveralls"
     },
     "repository": {

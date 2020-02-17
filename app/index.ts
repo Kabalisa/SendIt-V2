@@ -6,8 +6,11 @@ import { typeDefs } from './Schema/graphql/graphSchema';
 import { resolvers } from './resolver/resolver';
 import { UserModel } from './models/mongoModels';
 import { AuthHelper } from './helpers/authHelper';
+import { schemaDirectives } from './helpers/directives/index';
 
 const env = process.env.NODE_ENV;
+const { SECRET } = process.env;
+const TOKENHEADER = 'authorization';
 const url = env === 'test' ? 'mongodb://localhost:27017' : 'mongodb://localhost:27018/send-it-v2';
 
 mongoose.connect(url, { useNewUrlParser: true });
@@ -21,8 +24,23 @@ db.once('open', function() {
 const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: () => {
-        return { UserModel, AuthHelper };
+    schemaDirectives,
+    context: ({ req }) => {
+        const token = req.headers[TOKENHEADER];
+        let currentUser: any = null;
+        let errorMessage: string | null = null;
+
+        try {
+            if (token) {
+                currentUser = AuthHelper.decodeToken(token)(SECRET);
+            } else {
+                errorMessage = 'no token provided';
+            }
+        } catch (error) {
+            errorMessage = error.message;
+        }
+
+        return { UserModel, AuthHelper, currentUser, errorMessage };
     },
 });
 
