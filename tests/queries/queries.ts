@@ -1,9 +1,18 @@
 export const GET_USERS = `
 {
-    getUsers {
-      id
-      email
-      isVerified
+  getUsers {
+    ... on GetUsers {
+      results {
+        id
+        email
+        isVerified
+        role
+      }
+    }
+    ... on RequestError{
+      errorType
+      errorMessage
     }
   }
+}
 `;

@@ -11,8 +11,18 @@ exports.typeDefs = apollo_server_express_1.gql `
         email: String
     }
 
+    directive @isEmailVerified on FIELD_DEFINITION
+    directive @isAdmin on FIELD_DEFINITION
+
     union RegistrationUnion = UserRegistration | RequestError
     union EmailErrorUnion = EmailType | RequestError
+    union GetUsersUnion = GetUsers | RequestError
+
+    enum Role {
+        ADMIN
+        USER
+        SELLER
+    }
 
     type UserRegistration {
         registrationType: String
@@ -34,6 +44,7 @@ exports.typeDefs = apollo_server_express_1.gql `
         userName: String
         image: String
         isVerified: Boolean
+        role: Role
     }
 
     type EmailType {
@@ -44,14 +55,18 @@ exports.typeDefs = apollo_server_express_1.gql `
         message: String!
     }
 
+    type GetUsers {
+        results: [User]
+    }
+
     type Query {
-        getUsers: [User]
+        getUsers: GetUsersUnion @isAdmin
     }
 
     type Mutation {
         register(input: RegistrationInput): RegistrationUnion
-        logIn(input: RegistrationInput): RegistrationUnion
-        deleteUser(input: EmailInput): EmailErrorUnion
+        logIn(input: RegistrationInput): RegistrationUnion @isEmailVerified
+        deleteUser(input: EmailInput): EmailErrorUnion @isAdmin
         validateUser(input: EmailInput): MessageType
     }
 `;

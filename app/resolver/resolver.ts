@@ -19,14 +19,26 @@ export const resolvers = {
             }
         },
     },
+    GetUsersUnion: {
+        __resolveType(obj: any) {
+            if (obj.results) {
+                return 'GetUsers';
+            }
+            if (obj.errorMessage) {
+                return 'RequestError';
+            }
+        },
+    },
     Query: {
-        getUsers: (_: any, __: any, { UserModel, AuthHelper }: any) => {
+        getUsers: (_: any, __: any, context: any) => {
+            const { UserModel, AuthHelper } = context;
             const results = AuthHelper.fetchUsers(UserModel);
-            return results;
+            return { results };
         },
     },
     Mutation: {
-        register: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+        register: async (_: any, { input }: any, context: any) => {
+            const { UserModel, AuthHelper } = context;
             const result = await AuthHelper.createUser(input, { UserModel, AuthHelper });
             const results =
                 result === 'send email failed'
@@ -45,11 +57,13 @@ export const resolvers = {
                       };
             return results;
         },
-        logIn: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+        logIn: async (_: any, { input }: any, context: any) => {
+            const { UserModel, AuthHelper } = context;
             const result = await AuthHelper.loginUser(input, { UserModel, AuthHelper });
             return result;
         },
-        deleteUser: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+        deleteUser: async (_: any, { input }: any, context: any) => {
+            const { UserModel, AuthHelper } = context;
             const userDeleted = await AuthHelper.deleteUser(input, { UserModel });
             const results = userDeleted
                 ? { email: userDeleted }
@@ -59,7 +73,8 @@ export const resolvers = {
                   };
             return results;
         },
-        validateUser: async (_: any, { input }: any, { UserModel, AuthHelper }: any) => {
+        validateUser: async (_: any, { input }: any, context: any) => {
+            const { UserModel, AuthHelper } = context;
             const result = await AuthHelper.validateUser(input, { UserModel, AuthHelper });
             return result;
         },

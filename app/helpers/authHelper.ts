@@ -58,12 +58,14 @@ export class AuthHelper {
             try {
                 const SECRET = process.env.SECRET;
                 const APIURL = process.env.API_URL;
+                const { ADMIN_EMAIL } = process.env;
                 const MUTATION = AuthHelper.validateUserMutation(email);
                 const token = AuthHelper.tokenGenerator({ email }, SECRET);
                 const storedInput = {
                     email,
                     password: AuthHelper.hashPassword(input.password),
                     isVerified: false,
+                    role: email === ADMIN_EMAIL ? 'ADMIN' : 'USER',
                 };
                 const user = new UserModel(storedInput);
                 await send(AuthHelper, {
@@ -84,18 +86,11 @@ export class AuthHelper {
         const userExist = await AuthHelper.fetchAUser(UserModel, input);
         const SECRET = process.env.SECRET;
         const token = AuthHelper.tokenGenerator({ email: input.email }, SECRET);
-        if (userExist) {
-            const { isVerified } = userExist;
-            const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
-            const result = !isVerified
-                ? { errorType: 'user login in error', errorMessage: 'verify your email first.' }
-                : isPasswordCorrect
-                ? { registrationType: 'user log in', token }
-                : { errorType: 'user login in error', errorMessage: 'incorrect password' };
-            return result;
-        } else {
-            return { errorType: 'user login in error', errorMessage: 'user does not exists' };
-        }
+        const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
+        const result = isPasswordCorrect
+            ? { registrationType: 'user log in', token }
+            : { errorType: 'user login in error', errorMessage: 'incorrect password' };
+        return result;
     };
 
     static deleteUser = async (input: any, { UserModel }: any, _?: any) => {
@@ -139,5 +134,12 @@ export class AuthHelper {
         } else {
             return { message: error };
         }
+    };
+
+    static decodeToken = (token: any) => {
+        return (secret = 'socret') => {
+            const decoded = Jwt.verify(token, secret);
+            return decoded;
+        };
     };
 }

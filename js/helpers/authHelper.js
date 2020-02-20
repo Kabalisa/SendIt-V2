@@ -64,12 +64,14 @@ AuthHelper.createUser = (input, { UserModel, AuthHelper }, _) => __awaiter(void 
         try {
             const SECRET = process.env.SECRET;
             const APIURL = process.env.API_URL;
+            const { ADMIN_EMAIL } = process.env;
             const MUTATION = AuthHelper.validateUserMutation(email);
             const token = AuthHelper.tokenGenerator({ email }, SECRET);
             const storedInput = {
                 email,
                 password: AuthHelper.hashPassword(input.password),
                 isVerified: false,
+                role: email === ADMIN_EMAIL ? 'ADMIN' : 'USER',
             };
             const user = new UserModel(storedInput);
             yield mailSender_1.send(AuthHelper, {
@@ -90,19 +92,11 @@ AuthHelper.loginUser = (input, { UserModel, AuthHelper }) => __awaiter(void 0, v
     const userExist = yield AuthHelper.fetchAUser(UserModel, input);
     const SECRET = process.env.SECRET;
     const token = AuthHelper.tokenGenerator({ email: input.email }, SECRET);
-    if (userExist) {
-        const { isVerified } = userExist;
-        const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
-        const result = !isVerified
-            ? { errorType: 'user login in error', errorMessage: 'verify your email first.' }
-            : isPasswordCorrect
-                ? { registrationType: 'user log in', token }
-                : { errorType: 'user login in error', errorMessage: 'incorrect password' };
-        return result;
-    }
-    else {
-        return { errorType: 'user login in error', errorMessage: 'user does not exists' };
-    }
+    const isPasswordCorrect = AuthHelper.comparePassword(input.password, userExist.password);
+    const result = isPasswordCorrect
+        ? { registrationType: 'user log in', token }
+        : { errorType: 'user login in error', errorMessage: 'incorrect password' };
+    return result;
 });
 AuthHelper.deleteUser = (input, { UserModel }, _) => __awaiter(void 0, void 0, void 0, function* () {
     const userExist = yield AuthHelper.fetchAUser(UserModel, input);
@@ -122,7 +116,6 @@ AuthHelper.emailTransport = (APIKEY) => {
         },
     };
     const NODEENV = process.env.NODE_ENV;
-    console.log('==[[]apikey', APIKEY, '009NODEENV', NODEENV);
     const tranport = NODEENV === 'test' && APIKEY === 'TESTAPIKEY'
         ? nodemailer_sendgrid_transport_1.default(options)
         : NODEENV === 'test'
@@ -143,4 +136,10 @@ AuthHelper.validateUser = (input, { UserModel, AuthHelper }) => __awaiter(void 0
         return { message: error };
     }
 });
+AuthHelper.decodeToken = (token) => {
+    return (secret = 'socret') => {
+        const decoded = jsonwebtoken_1.default.verify(token, secret);
+        return decoded;
+    };
+};
 //# sourceMappingURL=authHelper.js.map
