@@ -35,13 +35,13 @@ AuthHelper.comparePassword = (password, hashPassword) => {
 };
 AuthHelper.fetchUsers = (UserModel, _, __) => UserModel.find();
 AuthHelper.fetchAUser = (UserModel, input) => __awaiter(void 0, void 0, void 0, function* () {
-    if (input.email) {
+    try {
         return yield UserModel.findOne({ email: input.email }, (err, user) => {
             return user;
         });
     }
-    else {
-        return null;
+    catch (error) {
+        return error.message;
     }
 });
 AuthHelper.validateUserMutation = (email) => {
@@ -72,6 +72,7 @@ AuthHelper.createUser = (input, { UserModel, AuthHelper }, _) => __awaiter(void 
                 password: AuthHelper.hashPassword(input.password),
                 isVerified: false,
                 role: email === ADMIN_EMAIL ? 'ADMIN' : 'USER',
+                provider: 'local',
             };
             const user = new UserModel(storedInput);
             yield mailSender_1.send(AuthHelper, {

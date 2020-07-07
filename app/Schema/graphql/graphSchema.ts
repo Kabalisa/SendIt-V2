@@ -40,7 +40,7 @@ export const typeDefs = gql`
         token: String!
         firstName: String
         lastName: String
-        userName: String
+        provider: String
         image: String
         isVerified: Boolean
         role: Role
