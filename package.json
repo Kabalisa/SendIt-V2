@@ -22,7 +22,7 @@
     },
     "homepage": "https://github.com/Kabalisa/SendIt-V2-backend#readme",
     "dependencies": {
-        "@graphql-codegen/cli": "^1.11.2",
+        "@graphql-codegen/cli": "^1.21.8",
         "@graphql-codegen/typescript": "^1.11.2",
         "@graphql-codegen/typescript-resolvers": "^1.11.2",
         "@types/bcryptjs": "^2.4.2",
